@@ -7,6 +7,7 @@ import com.appsdelevoperblog.app.ws.ui.model.response.UserRest;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,11 +21,16 @@ public class UserController {
         this.userService = userService;
     }
 
-    @GetMapping
-    public  String getUser(){
-        return "get user was called";
+    @GetMapping(path="/{id}" , produces = {MediaType.APPLICATION_JSON_VALUE
+                                            ,MediaType.APPLICATION_XML_VALUE})
+    public  UserRest getUser(@PathVariable String id){
+        UserRest returnValue = new UserRest();
+        UserDto userDto =  userService.getUserByUserId(id);
+        BeanUtils.copyProperties(userDto,returnValue);
+        return returnValue;
     }
-    @PostMapping
+    @PostMapping(consumes = {MediaType.APPLICATION_JSON_VALUE,MediaType.APPLICATION_XML_VALUE},
+                 produces = {MediaType.APPLICATION_JSON_VALUE,MediaType.APPLICATION_XML_VALUE})
     public ResponseEntity<UserRest> createUser(@RequestBody UserDetailsRequestModel userDetails){
 
         UserRest returnValue = new UserRest();
