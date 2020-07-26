@@ -1,7 +1,7 @@
 package com.appsdelevoperblog.app.ws.service.impl;
 
 import com.appsdelevoperblog.app.ws.io.entity.UserEntity;
-import com.appsdelevoperblog.app.ws.repository.UserRepository;
+import com.appsdelevoperblog.app.ws.io.repositories.UserRepository;
 import com.appsdelevoperblog.app.ws.service.UserService;
 import com.appsdelevoperblog.app.ws.shared.Utils;
 import com.appsdelevoperblog.app.ws.shared.dto.UserDto;
@@ -38,6 +38,15 @@ public class UserServiceImpl implements UserService {
         UserEntity storedUserDetails = userRepository.save(userEntity);
         UserDto returnValue = new UserDto();
         BeanUtils.copyProperties(storedUserDetails,returnValue);
+        return returnValue;
+    }
+
+    @Override
+    public UserDto getUser(String email) {
+        UserEntity userEntity = userRepository.findByEmail(email);
+        if(userEntity==null) throw new UsernameNotFoundException(email);
+        UserDto returnValue = new UserDto();
+        BeanUtils.copyProperties(userEntity,returnValue);
         return returnValue;
     }
 

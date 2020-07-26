@@ -1,5 +1,8 @@
 package com.appsdelevoperblog.app.ws.security;
 
+import com.appsdelevoperblog.app.ws.SpringApplicationContext;
+import com.appsdelevoperblog.app.ws.service.UserService;
+import com.appsdelevoperblog.app.ws.shared.dto.UserDto;
 import com.appsdelevoperblog.app.ws.ui.model.request.UserLoginRequestModel;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Jwts;
@@ -52,8 +55,11 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
        String token = Jwts.builder()
                         .setSubject(userName)
                         .setExpiration(new Date(System.currentTimeMillis()+SecurityConstants.EXPIRATION_TIME))
-                        .signWith(SignatureAlgorithm.HS512,SecurityConstants.TOKEN_SECRET)
+                        .signWith(SignatureAlgorithm.HS512,SecurityConstants.getTokenSecret())
                         .compact();
+       UserService userService = (UserService)SpringApplicationContext.getBean("userServiceImpl");
+        UserDto userDto = userService.getUser(userName);
         response.addHeader(SecurityConstants.HEADER_STRING,SecurityConstants.TOKEN_PREFIX+token);
+        response.addHeader("UserID",userDto.getUserId());
     }
 }
