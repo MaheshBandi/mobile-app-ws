@@ -4,8 +4,7 @@ import com.appsdelevoperblog.app.ws.exceptions.UserServiceException;
 import com.appsdelevoperblog.app.ws.service.UserService;
 import com.appsdelevoperblog.app.ws.shared.dto.UserDto;
 import com.appsdelevoperblog.app.ws.ui.model.request.UserDetailsRequestModel;
-import com.appsdelevoperblog.app.ws.ui.model.response.ErrorMessages;
-import com.appsdelevoperblog.app.ws.ui.model.response.UserRest;
+import com.appsdelevoperblog.app.ws.ui.model.response.*;
 import org.springframework.beans.BeanUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -54,11 +53,15 @@ public class UserController {
         BeanUtils.copyProperties(userDetails, userDto);
         UserDto updateUser = userService.updateUser(id , userDto);
         BeanUtils.copyProperties(updateUser, returnValue);
-        return new ResponseEntity<>(returnValue, HttpStatus.ACCEPTED);
+        return new ResponseEntity<>(returnValue, HttpStatus.OK);
     }
 
-    @DeleteMapping
-    public String deleteUser() {
-        return "delete user was called";
+    @DeleteMapping(path = "/{id}")
+    public OperationStatusModel deleteUser(@PathVariable String id) {
+        OperationStatusModel returnValue = new OperationStatusModel();
+        returnValue.setOperationName(RequestOperationName.DELETE.name());
+        userService.deleteUser(id);
+        returnValue.setOperationResult(RequestOperationStatus.SUCCESS.name());
+        return returnValue;
     }
 }
