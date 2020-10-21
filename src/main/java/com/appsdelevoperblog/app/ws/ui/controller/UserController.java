@@ -7,7 +7,6 @@ import com.appsdelevoperblog.app.ws.ui.model.request.UserDetailsRequestModel;
 import com.appsdelevoperblog.app.ws.ui.model.response.ErrorMessages;
 import com.appsdelevoperblog.app.ws.ui.model.response.UserRest;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -17,38 +16,49 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("users")
 public class UserController {
 
+
     UserService userService;
 
     public UserController(UserService userService) {
         this.userService = userService;
     }
 
-    @GetMapping(path="/{id}" , produces = {MediaType.APPLICATION_JSON_VALUE
-                                            ,MediaType.APPLICATION_XML_VALUE})
-    public  UserRest getUser(@PathVariable String id){
+    @GetMapping(path = "/{id}", produces = {MediaType.APPLICATION_JSON_VALUE
+            , MediaType.APPLICATION_XML_VALUE})
+    public UserRest getUser(@PathVariable String id) {
         UserRest returnValue = new UserRest();
-        UserDto userDto =  userService.getUserByUserId(id);
-        BeanUtils.copyProperties(userDto,returnValue);
+        UserDto userDto = userService.getUserByUserId(id);
+        BeanUtils.copyProperties(userDto, returnValue);
         return returnValue;
     }
-    @PostMapping(consumes = {MediaType.APPLICATION_JSON_VALUE,MediaType.APPLICATION_XML_VALUE},
-                 produces = {MediaType.APPLICATION_JSON_VALUE,MediaType.APPLICATION_XML_VALUE})
-    public ResponseEntity<UserRest> createUser(@RequestBody UserDetailsRequestModel userDetails) throws UserServiceException{
+
+    @PostMapping(consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE},
+            produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
+    public ResponseEntity<UserRest> createUser(@RequestBody UserDetailsRequestModel userDetails) throws UserServiceException {
 
         UserRest returnValue = new UserRest();
-        if(userDetails.getFirstName().isEmpty()) throw new UserServiceException(ErrorMessages.MISSING_REQUIRED_FIELDS.getErrorMessage());
+        if (userDetails.getFirstName().isEmpty())
+            throw new UserServiceException(ErrorMessages.MISSING_REQUIRED_FIELDS.getErrorMessage());
         UserDto userDto = new UserDto();
-        BeanUtils.copyProperties(userDetails,userDto);
+        BeanUtils.copyProperties(userDetails, userDto);
         UserDto createdUser = userService.createUser(userDto);
-        BeanUtils.copyProperties(createdUser,returnValue);
+        BeanUtils.copyProperties(createdUser, returnValue);
         return new ResponseEntity<>(returnValue, HttpStatus.CREATED);
     }
-    @PutMapping
-    public  String updateUser(){
-        return "update user was called";
+
+    @PutMapping(path = "/{id}", produces = {MediaType.APPLICATION_JSON_VALUE
+            , MediaType.APPLICATION_XML_VALUE})
+    public ResponseEntity<UserRest> updateUser(@PathVariable String id,@RequestBody UserDetailsRequestModel userDetails) {
+        UserRest returnValue = new UserRest();
+        UserDto userDto = new UserDto();
+        BeanUtils.copyProperties(userDetails, userDto);
+        UserDto updateUser = userService.updateUser(id , userDto);
+        BeanUtils.copyProperties(updateUser, returnValue);
+        return new ResponseEntity<>(returnValue, HttpStatus.ACCEPTED);
     }
+
     @DeleteMapping
-    public String deleteUser(){
+    public String deleteUser() {
         return "delete user was called";
     }
 }
